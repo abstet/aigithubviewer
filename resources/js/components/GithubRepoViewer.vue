@@ -1,17 +1,15 @@
 <template>
     <div>
-        <form>
-            <div class="form-group">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="repoName" placeholder="owner/repo" />
-                    <div class="input-group-btn">
-                        <button @click="importRepoForm()" class="form-control btn-success ">
-                            <i class="glyphicon glyphicon-import"></i>
-                        </button>
-                    </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" class="form-control" id="repoName" placeholder="owner/repo" />
+                <div class="input-group-btn">
+                    <button @click="importRepoForm()" class="form-control btn-success ">
+                        <i class="glyphicon glyphicon-import"></i>
+                    </button>
                 </div>
             </div>
-        </form>
+        </div>
 
         <div class="row-cols-8">
             <div class="col-md-4">
