@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="githubviewer">
         <div class="form-group">
             <div class="input-group">
                 <input type="text" class="form-control" id="repoName" placeholder="owner/repo" />
@@ -15,7 +15,7 @@
             <div class="col-md-4">
                 <h5>Repositories</h5>
                 <ul class="list-group">
-                    <a href="#" v-for="repo in repos" class="list-group-item" @click="loadRepo(repo.owner, repo.repo)">
+                    <li v-for="repo in repos" class="list-group-item" @click="loadRepo(repo.owner, repo.repo)" style="cursor: pointer;">
                         <span>{{ repo.owner }}/{{ repo.repo }}</span>
                         <button class="btn btn-default btn-xs pull-right refresh-item" @click="importRepo(repo.owner, repo.repo)" title="Re-import">
                             <span class="glyphicon glyphicon-refresh"></span>
@@ -23,14 +23,14 @@
                         <button class="btn btn-default btn-xs pull-right remove-item" @click="deleteRepo(repo.owner, repo.repo)" title="Delete">
                             <span class="glyphicon glyphicon-remove"></span>
                         </button>
-                    </a>
+                    </li>
                 </ul>
             </div>
             <div class="col-md-6">
                 <h5>Commits</h5>
                 <ul class="list-group">
                     <li v-for="commit in commits.data" class="list-group-item">
-                        {{ commit.json.commit.author.date }} by <em>{{ commit.json.commit.author.name }}</em>
+                        <a v-bind:href="commit.json.commit.url" target="_blank">{{ commit.json.commit.author.date }} by <em>{{ commit.json.commit.author.name }}</em></a>
                     </li>
                 </ul>
 
@@ -45,6 +45,20 @@
 
 <script>
     import axios from "axios";
+    axios.interceptors.request.use(function(config) {
+        $('#githubviewer').addClass("overlay");
+        return config;
+    }, function (error) {
+        $('#githubviewer').removeClass("overlay");
+        return false;
+    });
+    axios.interceptors.response.use(function(response) {
+        $('#githubviewer').removeClass("overlay");
+        return response;
+    }, function (error) {
+        $('#githubviewer').removeClass("overlay");
+        return false;
+    });
 
     export default {
         data() {
@@ -63,18 +77,20 @@
                 axios.post('/github/repo/' + this.repoOwner + '/' + this.repoRepo + '/?page=' + page)
                     .then(response => {
                         //console.log(response.data);
-                        if (response.data) {
-                            this.commits = response.data;
-                            this.commits.data.map((item) => {
-                                item.json = JSON.parse(item.json);
-                            });
+                        if (response.data.status != 'error') {
+                            if (response.data) {
+                                this.commits = response.data;
+                                this.commits.data.map((item) => {
+                                    item.json = JSON.parse(item.json);
+                                });
+                            }
                         }
                     });
             },
             deleteRepo(owner, repo) {
                 axios.delete('/github/repo/'+owner+'/'+repo)
                     .then(response => {
-                        console.log(response.data);
+                        //console.log(response.data);
                         this.repoOwner = null;
                         this.repoRepo = null;
                         this.loadRepos();
@@ -117,3 +133,10 @@
         }
     }
 </script>
+
+<style>
+    .overlay {
+        opacity: .5;
+    }
+</style>
+
