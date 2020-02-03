@@ -9,6 +9,7 @@
                     </button>
                 </div>
             </div>
+            <div id="message">{{ message }}</div>
         </div>
 
         <div class="row-cols-8">
@@ -74,7 +75,8 @@
                 commitsTotal: 0,
                 repos: {},
                 repoOwner: null,
-                repoRepo: null
+                repoRepo: null,
+                message: ''
             }
         },
         mounted() {
@@ -101,6 +103,7 @@
                 axios.post('/github/repo/' + this.repoOwner + '/' + this.repoRepo + '/?page=' + page)
                     .then(response => {
                         //console.log(response.data);
+                        this.commitsTotal = 0;
                         if (response.data.status != 'error') {
                             if (response.data) {
                                 this.commits = response.data;
@@ -143,18 +146,21 @@
             },
             importRepoForm() {
                 let name = $('#repoName').val();
-                if (name.length) {
+                if (name.length && name.includes('/')) {
                     let a = name.split('/');
                     this.importRepo(a[0], a[1]);
+                } else {
+                    this.message = 'Invalid format';
+                    $('#message').slideDown();
+                    setTimeout(function(){$('#message').slideUp()},  2000);
                 }
             },
             importRepo(name, repo) {
                 axios.put('/github/repo/' + name + '/' + repo)
                     .then(response => {
-                        // console.log(response.data);
-                        this.loadRepos();
-                        this.loadRepo(name, repo);
-                    });
+                            this.loadRepos();
+                            this.loadRepo(name, repo);
+                        });
             }
         }
     }
@@ -163,6 +169,11 @@
 <style>
     .overlay {
         opacity: .5;
+    }
+    #message {
+        padding: .6em;
+        color: red;
+        font-size: small;
     }
 </style>
 
