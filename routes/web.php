@@ -12,6 +12,7 @@
 */
 
 use \App\Repository;
+use Illuminate\Http\Request;;
 
 Route::get('/', function () {
     return view('index');
@@ -42,8 +43,16 @@ Route::delete('/github/repo/{owner}/{repo}', function ($owner, $repo) {
     return response()->json($r, $code);
 });
 
+Route::post('/github/repo/commits', function (Request $request) {
+    $r = \App\Repository::removeCommits($request->post());
+    $r["status"] == "success" ? $code = 200 : $code = 400;
+    return response()->json($r, $code);
+});
+
 Route::patch('/github/repo/{owner}/{repo}', function ($owner, $repo) {
     $r = \App\Repository::clear($owner, $repo);
     $r["status"] == "success" ? $code = 200 : $code = 400;
     return response()->json($r, $code);
 });
+
+

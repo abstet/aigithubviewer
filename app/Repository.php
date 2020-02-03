@@ -20,6 +20,26 @@ class Repository extends Model
      * @param $repo
      * @return array
      */
+    static public function removeCommits($shas) {
+        try {
+            $deleted = 0;
+            foreach ($shas as $sha) {
+                if (\App\Commits::where('sha', $sha)->delete()) {
+                    ++$deleted;
+                }
+            }
+            return array("status" => "success", "data" => $deleted);
+        } catch (\Throwable $t) {
+            return array("status" => "error",
+                "message" => $t->getMessage());
+        }
+    }
+
+    /**
+     * @param $owner
+     * @param $repo
+     * @return array
+     */
     static public function list() {
         try {
             $collection = \App\Repository::all();
